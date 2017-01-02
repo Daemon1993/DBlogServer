@@ -32,7 +32,7 @@ def allow_cross_domain(fun):
 def publish():
     print('publish start')
     if request.method == 'POST':
-        
+
         return 'Hello World!'
 
 
