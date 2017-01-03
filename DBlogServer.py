@@ -9,7 +9,6 @@ app = Flask(__name__)
 app.secret_key =os.urandom(24)
 print(app.secret_key)
 
-
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 UPLOAD_FOLDER = os.path.join(APP_ROOT, 'static/uploads')
@@ -20,38 +19,33 @@ def allow_cross_domain(fun):
     @wraps(fun)
     def wrapper_fun(*args, **kwargs):
         rst = make_response(fun(*args, **kwargs))
-        rst.headers['Access-Control-Allow-Origin'] = '*'
+        rst.headers['Access-Control-Allow-Origin'] = 'http://localhost:9999'
+        rst.headers['Access-Control-Allow-Credentials'] = 'true'
         rst.headers['Access-Control-Allow-Methods'] = 'PUT,GET,POST,DELETE'
         allow_headers = "Referer,Accept,Origin,User-Agent"
         rst.headers['Access-Control-Allow-Headers'] = allow_headers
         return rst
 
-
     return wrapper_fun
-
-#
-@app.route('/login',methods=['POST'])
-@allow_cross_domain
-def login():
-     if request.method == 'POST':
-        form=request.form
-        session['username'] =form['username']
-        return 'success'
-     return ''
-
 
 @app.route('/publish',methods=['POST'])
 @allow_cross_domain
 def publish():
-    print('publish start ')
+    if request.method == 'POST':
+        return 'Hello World!'
+
+
+@app.route('/login',methods=['POST'])
+@allow_cross_domain
+def login():
+    print('login start')
+
     if 'username' in session:
-        return 'Logged ok '
+        return 'Logged in ok'
 
     if request.method == 'POST':
-        form=request.form;
-        print(form);
-
-        return 'Hello World!'
+        session['username']=request.form['username']
+        return 'login ok'
 
 
 @app.route('/upload', methods=['POST'])
@@ -59,9 +53,10 @@ def publish():
 def upload_file():
     print('upload coming')
     if request.method == 'POST':
-
+        print(request.form)
         f = request.files['file']
 
+        print(request.form['filename'])
         # f.save(os.path.join(UPLOAD_FOLDER, request.form['filename']))
         result=QiNiuAction.uploadServer(f,request.form['filename'])
         if(result is not None):
