@@ -1,11 +1,12 @@
 import os
 import pymongo
-from flask import Flask, request
+from flask import Flask, request,session
 from functools import wraps
 from flask import make_response
 import QiNiuAction
 
 app = Flask(__name__)
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -18,7 +19,8 @@ def allow_cross_domain(fun):
     @wraps(fun)
     def wrapper_fun(*args, **kwargs):
         rst = make_response(fun(*args, **kwargs))
-        rst.headers['Access-Control-Allow-Origin'] = '*'
+        rst.headers['Access-Control-Allow-Origin'] = 'http://localhost:9999'
+        rst.headers['Access-Control-Allow-Credentials'] = 'true'
         rst.headers['Access-Control-Allow-Methods'] = 'PUT,GET,POST,DELETE'
         allow_headers = "Referer,Accept,Origin,User-Agent"
         rst.headers['Access-Control-Allow-Headers'] = allow_headers
@@ -26,14 +28,24 @@ def allow_cross_domain(fun):
 
     return wrapper_fun
 
-
 @app.route('/publish',methods=['POST'])
 @allow_cross_domain
 def publish():
-    print('publish start')
     if request.method == 'POST':
-
         return 'Hello World!'
+
+
+@app.route('/login',methods=['POST'])
+@allow_cross_domain
+def login():
+    print('login start')
+
+    if 'username' in session:
+        return 'Logged in ok'
+
+    if request.method == 'POST':
+        session['username']=request.form['username']
+        return 'login ok'
 
 
 @app.route('/upload', methods=['POST'])
