@@ -1,11 +1,13 @@
 import os
 import pymongo
-from flask import Flask, request
+from flask import Flask, request,session
 from functools import wraps
 from flask import make_response
 import QiNiuAction
 
 app = Flask(__name__)
+app.secret_key =os.urandom(24)
+print(app.secret_key)
 
 
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -26,12 +28,27 @@ def allow_cross_domain(fun):
 
     return wrapper_fun
 
+#
+@app.route('/login',methods=['POST'])
+@allow_cross_domain
+def login():
+     if request.method == 'POST':
+        form=request.form
+        session['username'] =form['username']
+        return 'success'
+     return ''
+
 
 @app.route('/publish',methods=['POST'])
 @allow_cross_domain
 def publish():
-    print('publish start')
+    print('publish start ')
+    if 'username' in session:
+        return 'Logged ok '
+
     if request.method == 'POST':
+        form=request.form;
+        print(form);
 
         return 'Hello World!'
 
@@ -41,15 +58,14 @@ def publish():
 def upload_file():
     print('upload coming')
     if request.method == 'POST':
-        print(request.form)
+
         f = request.files['file']
 
-        print(request.form['filename'])
         # f.save(os.path.join(UPLOAD_FOLDER, request.form['filename']))
         result=QiNiuAction.uploadServer(f,request.form['filename'])
         if(result is not None):
              #插入数据库
-            data={'_id':result}
+            data={'_id':result,'use':False}
             qiniu_upload_images.save(data)
         else:
             result='error'
@@ -62,6 +78,7 @@ def upload_file():
 client=pymongo.MongoClient('localhost',27017)
 db=client['Dblog']
 qiniu_upload_images=db['qiniu_upload_images']
+publish_article_list=db['publish_article_list']
 
 if __name__ == '__main__':
     app.run(debug=True,use_reloader=False)
