@@ -26,6 +26,7 @@ def allow_cross_domain(fun):
         rst.headers['Access-Control-Allow-Headers'] = allow_headers
         return rst
 
+
     return wrapper_fun
 
 #
