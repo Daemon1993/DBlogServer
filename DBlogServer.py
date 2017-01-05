@@ -1,9 +1,11 @@
 import os
 import pymongo
-from flask import Flask, request,session
+import json
+from flask import Flask, request,session,g
 from functools import wraps
 from flask import make_response
 import QiNiuAction
+import BaseCodes
 
 app = Flask(__name__)
 app.secret_key =os.urandom(24)
@@ -18,38 +20,62 @@ print(APP_ROOT)
 def allow_cross_domain(fun):
     @wraps(fun)
     def wrapper_fun(*args, **kwargs):
+        print(' allow_cross_domain wrapper_fun')
         rst = make_response(fun(*args, **kwargs))
         rst.headers['Access-Control-Allow-Origin'] = 'http://localhost:9999'
         rst.headers['Access-Control-Allow-Credentials'] = 'true'
         rst.headers['Access-Control-Allow-Methods'] = 'PUT,GET,POST,DELETE'
         allow_headers = "Referer,Accept,Origin,User-Agent"
         rst.headers['Access-Control-Allow-Headers'] = allow_headers
+        print('域名 func over')
         return rst
 
     return wrapper_fun
 
+def login_require(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        print('login_require {0}'.format(g))
+
+        if 'username' in session:
+            return func(*args, **kwargs)
+
+        print('未登录 {0}'.format(BaseCodes.login_require))
+
+        return json.dumps(BaseCodes.login_require,ensure_ascii=False)
+
+    return wrapper
+
+
+
 @app.route('/publish',methods=['POST'])
 @allow_cross_domain
+@login_require
 def publish():
+
     if request.method == 'POST':
         return 'Hello World!'
+
 
 
 @app.route('/login',methods=['POST'])
 @allow_cross_domain
 def login():
-    print('login start')
+    print('login start {0}'.format(session))
 
     if 'username' in session:
-        return 'Logged in ok'
+         return json.dumps(BaseCodes.login_ok,ensure_ascii=False)
 
     if request.method == 'POST':
         session['username']=request.form['username']
-        return 'login ok'
+        return json.dumps(BaseCodes.do_ok,ensure_ascii=False)
+
+
 
 
 @app.route('/upload', methods=['POST'])
 @allow_cross_domain
+@login_require
 def upload_file():
     print('upload coming')
     if request.method == 'POST':
@@ -65,9 +91,8 @@ def upload_file():
             qiniu_upload_images.save(data)
         else:
             result='error'
+        return json.dumps(BaseCodes.getOkCode(result))
 
-        print(result)
-        return result
 
 
 
