@@ -41,7 +41,7 @@ def login():
     print('login start')
 
     if 'username' in session:
-        return 'Logged in ok'
+        return 'Logged in ok '+session['username']
 
     if request.method == 'POST':
         session['username']=request.form['username']
@@ -62,11 +62,12 @@ def upload_file():
         if(result is not None):
              #插入数据库
             data={'_id':result}
-            qiniu_upload_images.save(data)
+            print(data)
+            # qiniu_upload_images.save(data)
         else:
             result='error'
 
-        print(result)
+        print('result '+result)
         return result
 
 

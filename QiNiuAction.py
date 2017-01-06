@@ -13,12 +13,13 @@ bucket_name = 'dblog'
 def uploadServer(data,filename):
 
     #上传到七牛后保存的文件名
-    key = filename;
+    key = filename
 
     #生成上传 Token，可以指定过期时间等
     token = q.upload_token(bucket_name, key, 3600)
 
     ret, info = put_data(token, key, data)
+
     if(info.status_code==200):
         #数据库 记录 上传的文件名 在文章发布的时候 删掉无用图片
         return key
