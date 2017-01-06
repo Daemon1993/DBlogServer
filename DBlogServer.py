@@ -42,7 +42,7 @@ def login_require(func):
 
         print('未登录 {0}'.format(BaseCodes.login_require))
 
-        return json.dumps(BaseCodes.login_require,ensure_ascii=False)
+        return BaseCodes.login_require
 
     return wrapper
 
@@ -64,15 +64,12 @@ def login():
     print('login start {0}'.format(session))
 
     if 'username' in session:
-<<<<<<< HEAD
-        return 'Logged in ok '+session['username']
-=======
-         return json.dumps(BaseCodes.login_ok,ensure_ascii=False)
->>>>>>> 7712d637756c839c654f45bafef507484142fb7e
+        return BaseCodes.login_ok
+
 
     if request.method == 'POST':
         session['username']=request.form['username']
-        return json.dumps(BaseCodes.do_ok,ensure_ascii=False)
+        return BaseCodes.do_ok
 
 
 
@@ -90,24 +87,17 @@ def upload_file():
         # f.save(os.path.join(UPLOAD_FOLDER, request.form['filename']))
         result=QiNiuAction.uploadServer(f,request.form['filename'])
         if(result is not None):
-             #插入数据库
-<<<<<<< HEAD
             data={'_id':result}
             print(data)
-            # qiniu_upload_images.save(data)
-=======
             data={'_id':result,'use':False}
-            qiniu_upload_images.save(data)
->>>>>>> 7712d637756c839c654f45bafef507484142fb7e
+            try:
+                qiniu_upload_images.save(data)
+            except Exception as e:
+                return BaseCodes.getOkCode(e)
         else:
             result='error'
-        return json.dumps(BaseCodes.getOkCode(result))
+        return BaseCodes.getOkCode(result)
 
-<<<<<<< HEAD
-        print('result '+result)
-        return result
-=======
->>>>>>> 7712d637756c839c654f45bafef507484142fb7e
 
 
 
