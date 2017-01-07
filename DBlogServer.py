@@ -1,4 +1,6 @@
 import os
+import re
+
 import pymongo
 import json
 from flask import Flask, request, session, g
@@ -18,7 +20,8 @@ UPLOAD_FOLDER = os.path.join(APP_ROOT, 'static/uploads')
 
 print(APP_ROOT)
 
-md_image_matcher = "^[.jpg)$"
+#匹配 图片 markdown 模式
+md_image_pattern  = re.compile(r'\!\[.*\]\(.+.[jpg|png|gif]\)')
 
 
 def allow_cross_domain(fun):
@@ -58,6 +61,9 @@ def login_require(func):
 def publish():
     if request.method == 'POST':
         content = request.form['content']
+        print(content)
+        result = md_image_pattern.findall(content)
+        print(result)
 
         return 'Hello World!'
 
