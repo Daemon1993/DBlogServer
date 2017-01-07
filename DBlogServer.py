@@ -21,7 +21,7 @@ UPLOAD_FOLDER = os.path.join(APP_ROOT, 'static/uploads')
 print(APP_ROOT)
 
 #匹配 图片 markdown 模式
-md_image_pattern  = re.compile(r'\!\[.*\]\(.+.[jpg|png|gif]\)')
+md_image_pattern  = re.compile(r'\!\[.*\]\(.+\.(?:jpg|png|gif|)\)')
 
 
 def allow_cross_domain(fun):
